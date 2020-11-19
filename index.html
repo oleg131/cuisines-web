@@ -6,7 +6,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ML In Production</title>
+    <title>CuisinesML</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2212 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥣</text></svg>">
+
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/checkout/">
 
@@ -20,42 +23,67 @@
     <script>
       const API_URL = 'https://api.cuisines.awp.red';
 
-      $(document).ready(function() {
-        var chart = Highcharts.chart("result", {
-          chart: {
-            inverted: true,
-            backgroundColor: "#f8f9fa",
-            style: {
+        $(document).ready(function () {
+          var chart = Highcharts.chart("result", {
+            chart: {
+              inverted: true,
+              backgroundColor: "#f8f9fa",
+              style: {
                 fontFamily: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"]
-            }
-          },
-          title: {
-              text: "Scores"
-          },
-          xAxis: {
-            categories: []
-          },
-          series: [{
+              }
+            },
+            title: {
+              text: ""
+            },
+            xAxis: {
+              categories: []
+            },
+            yAxis: {
+              title: {
+                text: "Score"
+              }
+            },
+            series: [{
               type: "column",
               colorByPoint: false,
               data: [],
               showInLegend: false,
-              name: ""
-          }]
-        });
-
-        $("#submit").click(function() {
-          $.get(API_URL, {query: $("#text").val()}, function(data) {
-            chart.series[0].setData(data);
-            chart.update({
-              xAxis: {
-                categories: data.map(x => x["name"])
+              name: "",
+              dataLabels: [{
+                align: 'left',
+                format: '{y:.2f}'
+              }],
+            }],
+            plotOptions: {
+              series: {
+                dataLabels: {
+                  enabled: true,
+                  inside: false
+                }
               }
-            })
+            },
+          });
 
-            $("#result").show();
+          $("#submit").click(function () {
+            $("#submit").html("Loading...")
+            $.ajax(
+              API_URL,
+              {
+                data: { query: $("#text").val() },
+                success: function (data) {
+                  chart.series[0].setData(data);
+                  chart.update({
+                    xAxis: {
+                      categories: data.map(x => x["name"])
+                    }
+                  })
+                  $("#result").show();
+                  $("#submit").html("Submit")
+                },
+                error: (err) => $("#status").text(err.statusText)
+              }
+            )
           })
-        })
       });
     </script>
 
@@ -65,14 +93,10 @@
 
     <div class="container">
       <div class="py-5 text-center">
-        <!-- <i class="fas fa-pepper-hot fa-4x fa-fw" style="padding-bottom: 1vh"></i> -->
-        <img
-          src="./food-icon.png"
-          style="width: 200px; margin-bottom: 20px"
-        />
+        <i class="fas fa-pepper-hot fa-4x fa-fw" style="padding-bottom: 1vh"></i>
 
-        <h2>Cuisine Model</h2>
-        <p class="lead">Below is an example of estimator predicting cuisine from a list of ingredients.</p>
+        <h2>Cuisines</h2>
+        <p class="lead">Running machine learning model to predict cuisine from the list of ingredients.</p>
       </div>
 
       <div class="row">
@@ -82,17 +106,14 @@
             <div class="input-group">
               <textarea id="text" class="form-control" aria-label="With textarea" style="height: 20vh">kimchi</textarea>
             </div>
-            <hr class="mb-4">
-            <button id="submit" class="btn btn-primary btn-lg btn-block" type="button">Submit</button>
+            <button id="submit" class="btn btn-primary btn-lg btn-block" type="button"
+              style="margin-top: 10px; margin-bottom: 40px;">Submit</button>
           </form>
         </div>
       </div>
-
-      <hr class="mb-4">
-
       <div class="row">
         <div class="col-md-12">
-          <div id="result" style="display: none"></div>
+          <div id="result" style="display: none; margin-bottom: 50px;"></div>
         </div>
       </div>
 
